@@ -33,8 +33,11 @@ public class UserController {
     @Autowired
     ElectionService electionService;
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> doRegister(@RequestBody @Valid RegisterRequest registerRequest){
+    public ResponseEntity<UserResponse> doRegister(@RequestBody @Valid RegisterRequest registerRequest, BindingResult bindingResult){
         log.info("Request received to register user:"+ registerRequest.getUsername());
+        if(bindingResult.hasFieldErrors()){
+            throw new RuntimeException();
+        }
         try{
             UserResponse response = userService.registerUser(registerRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
