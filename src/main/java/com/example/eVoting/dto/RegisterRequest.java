@@ -9,8 +9,9 @@ import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@Setter
-@Getter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegisterRequest {
     @NotNull
     private String username;
@@ -22,5 +23,6 @@ public class RegisterRequest {
     private Gender gender;
     @NotNull
     private LocalDate dob;
+    @NotNull
     private String address;
 }
