@@ -1,7 +1,7 @@
 package com.example.eVoting.jwt;
 
 import com.example.eVoting.entities.User;
-import com.example.eVoting.exceptions.TokenNotValidException;
+import com.example.eVoting.exceptions.TokenException;
 import com.example.eVoting.services.CustomUserDetailsService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,16 +31,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         if(authHeader != null){
             if(!authHeader.startsWith("Bearer")){
-                throw new TokenNotValidException("Token not given in proper format");
+                throw new TokenException("Token not given in proper format");
             }
             String token = authHeader.split(" ")[1];
             if(jwtAuthenticationHelper.isTokenExpired(token)){
-                throw new TokenNotValidException("Token Expired, Please Login Again");
+                throw new TokenException("Token Expired, Please Login Again");
             }
             String username = jwtAuthenticationHelper.getUsername(token);
             User user = userDetailsService.loadUserByUsername(username);
             if(!token.equals(user.getAuthToken())){
-                throw new TokenNotValidException("Token Not Valid");
+                throw new TokenException("Token Not Valid");
             }
             if(SecurityContextHolder.getContext().getAuthentication() == null){
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(token, null, user.getAuthorities());

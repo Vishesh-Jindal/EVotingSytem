@@ -3,6 +3,7 @@ package com.example.eVoting.controllers;
 import com.example.eVoting.dto.JwtResponse;
 import com.example.eVoting.dto.LoginRequest;
 import com.example.eVoting.exceptions.NotFoundException;
+import com.example.eVoting.exceptions.ValidationException;
 import com.example.eVoting.services.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> doLogin(@RequestBody @Valid LoginRequest loginRequest, BindingResult bindingResult){
         log.info("Request recevied to login user:"+loginRequest.getUsername());
-        if(bindingResult.hasErrors()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if(bindingResult.hasFieldErrors()) throw new ValidationException(bindingResult.getFieldError().getField()+" "+bindingResult.getFieldError().getDefaultMessage());
         try{
             JwtResponse jwtResponse = authService.doLogin(loginRequest);
             return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);

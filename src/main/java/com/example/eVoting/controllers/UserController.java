@@ -6,7 +6,8 @@ import com.example.eVoting.dto.UserResponse;
 import com.example.eVoting.dto.VoteResponse;
 import com.example.eVoting.exceptions.AlreadyExistsException;
 import com.example.eVoting.exceptions.NotFoundException;
-import com.example.eVoting.exceptions.VotingNotAllowedException;
+import com.example.eVoting.exceptions.ValidationException;
+import com.example.eVoting.exceptions.VotingException;
 import com.example.eVoting.services.ElectionService;
 import com.example.eVoting.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/user")
@@ -35,9 +31,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<UserResponse> doRegister(@RequestBody @Valid RegisterRequest registerRequest, BindingResult bindingResult){
         log.info("Request received to register user:"+ registerRequest.getUsername());
-        if(bindingResult.hasFieldErrors()){
-            throw new RuntimeException();
-        }
+        if(bindingResult.hasFieldErrors()) throw new ValidationException(bindingResult.getFieldError().getField()+" "+bindingResult.getFieldError().getDefaultMessage());
         try{
             UserResponse response = userService.registerUser(registerRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -74,8 +68,8 @@ public class UserController {
         try {
             VoteResponse voteResponse = electionService.addVote(electionId, candidateId, username);
             return ResponseEntity.status(HttpStatus.CREATED).body(voteResponse);
-        } catch (VotingNotAllowedException votingNotAllowedException){
-            throw votingNotAllowedException;
+        } catch (VotingException votingException){
+            throw votingException;
         } catch (NotFoundException notFoundException) {
             throw notFoundException;
         }

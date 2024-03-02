@@ -3,12 +3,10 @@ package com.example.eVoting.controllers;
 import com.example.eVoting.dto.ElectionResponse;
 import com.example.eVoting.dto.ElectionResultResponse;
 import com.example.eVoting.exceptions.NotFoundException;
-import com.example.eVoting.exceptions.ResultsNotAllowedException;
+import com.example.eVoting.exceptions.ResultsException;
 import com.example.eVoting.services.ElectionService;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRange;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,7 +50,7 @@ public class ElectionController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (NotFoundException notFoundException){
             throw notFoundException;
-        } catch (ResultsNotAllowedException resultsNotAllowedException){
+        } catch (ResultsException resultsNotAllowedException){
             throw resultsNotAllowedException;
         }
     }

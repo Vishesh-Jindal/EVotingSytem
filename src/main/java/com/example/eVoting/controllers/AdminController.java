@@ -5,6 +5,7 @@ import com.example.eVoting.dto.*;
 import com.example.eVoting.exceptions.AlreadyExistsException;
 import com.example.eVoting.exceptions.NotFoundException;
 //import com.example.eVoting.services.ElectionService;
+import com.example.eVoting.exceptions.ValidationException;
 import com.example.eVoting.services.ElectionService;
 import com.example.eVoting.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class AdminController {
     @PostMapping("/add/election")
     public ResponseEntity<ElectionResponse> addElection(@RequestBody @Valid ElectionRequest electionRequest, BindingResult bindingResult){
         log.info("Request received to add election:"+electionRequest.getName());
-        if(bindingResult.hasErrors()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if(bindingResult.hasFieldErrors()) throw new ValidationException(bindingResult.getFieldError().getField()+" "+bindingResult.getFieldError().getDefaultMessage());
         try{
             ElectionResponse createdElection = electionService.addElection(electionRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdElection);
@@ -41,7 +42,7 @@ public class AdminController {
     public ResponseEntity<RoleResponse> grantRoles(@PathVariable("username") String username, @RequestBody @Valid RoleRequest roleRequest, BindingResult bindingResult){
         // entire role list will be replaced
         log.info("Request received to add roles:"+roleRequest.getRoles()+" for user:"+username);
-        if(bindingResult.hasErrors()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if(bindingResult.hasFieldErrors()) throw new ValidationException(bindingResult.getFieldError().getField()+" "+bindingResult.getFieldError().getDefaultMessage());
         try{
             RoleResponse response = userService.grantRoles(username, roleRequest);
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -53,7 +54,7 @@ public class AdminController {
     public ResponseEntity<RoleResponse> revokeRoles(@PathVariable("username") String username, @RequestBody @Valid RoleRequest roleRequest, BindingResult bindingResult){
         // only mentioned roles will be revoked
         log.info("Request received to revoke roles:"+roleRequest.getRoles()+" for user:"+username);
-        if(bindingResult.hasErrors()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if(bindingResult.hasFieldErrors()) throw new ValidationException(bindingResult.getFieldError().getField()+" "+bindingResult.getFieldError().getDefaultMessage());
         try{
             RoleResponse response = userService.revokeRoles(username, roleRequest);
             return ResponseEntity.status(HttpStatus.OK).body(response);

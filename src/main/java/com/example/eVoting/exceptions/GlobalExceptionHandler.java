@@ -20,8 +20,18 @@ public class GlobalExceptionHandler {
                                 .build()
                 );
     }
-    @ExceptionHandler(VotingNotAllowedException.class)
-    public ResponseEntity<ErrorResponse> handleVotingNotAllowedException(VotingNotAllowedException ex) {
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(ValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ErrorResponse.builder()
+                                .errorCode(HttpStatus.BAD_REQUEST.value())
+                                .message(ex.getMessage())
+                                .build()
+                );
+    }
+    @ExceptionHandler(VotingException.class)
+    public ResponseEntity<ErrorResponse> handleVotingNotAllowedException(VotingException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(
                         ErrorResponse.builder()
@@ -30,8 +40,8 @@ public class GlobalExceptionHandler {
                                 .build()
                 );
     }
-    @ExceptionHandler(ResultsNotAllowedException.class)
-    public ResponseEntity<ErrorResponse> handleResultsNotAllowedException(ResultsNotAllowedException ex) {
+    @ExceptionHandler(ResultsException.class)
+    public ResponseEntity<ErrorResponse> handleResultsNotAllowedException(ResultsException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(
                         ErrorResponse.builder()

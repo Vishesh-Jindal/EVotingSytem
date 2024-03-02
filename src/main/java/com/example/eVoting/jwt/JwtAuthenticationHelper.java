@@ -1,6 +1,6 @@
 package com.example.eVoting.jwt;
 
-import com.example.eVoting.exceptions.TokenNotValidException;
+import com.example.eVoting.exceptions.TokenException;
 import io.jsonwebtoken.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class JwtAuthenticationHelper {
             return Jwts.parserBuilder().setSigningKey(secret.getBytes())
                     .build().parseClaimsJws(token).getBody();
         } catch (Exception e){
-            throw new TokenNotValidException("Problem in Parsing the token");
+            throw new TokenException("Problem in Parsing the token");
         }
     }
     public Boolean isTokenExpired(String token){

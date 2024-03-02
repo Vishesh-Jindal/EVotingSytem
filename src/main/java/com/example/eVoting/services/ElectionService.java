@@ -7,15 +7,13 @@ import com.example.eVoting.entities.User;
 import com.example.eVoting.entities.VoteElectionCandidateMapping;
 import com.example.eVoting.exceptions.AlreadyExistsException;
 import com.example.eVoting.exceptions.NotFoundException;
-import com.example.eVoting.exceptions.ResultsNotAllowedException;
-import com.example.eVoting.exceptions.VotingNotAllowedException;
+import com.example.eVoting.exceptions.ResultsException;
+import com.example.eVoting.exceptions.VotingException;
 import com.example.eVoting.repositories.ElectionRepository;
 import com.example.eVoting.repositories.UserRepository;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -104,7 +102,7 @@ public class ElectionService {
         }
         return electionResponses;
     }
-    public ElectionResultResponse getElectionResult(Integer electionId) throws ResultsNotAllowedException, NotFoundException{
+    public ElectionResultResponse getElectionResult(Integer electionId) throws ResultsException, NotFoundException{
         List<ElectionCandidateMapping> electionCandidateMappings = electionCandidateMappingService.getByElection(electionId);
         if(electionCandidateMappings.size()==0){
             throw new NotFoundException("Election Candidates with election Id:"+electionId+" doesn't exists");
@@ -113,7 +111,7 @@ public class ElectionService {
         LocalDate startDate = electionCandidateMappings.get(0).getElection().getStartDate();
         LocalDate endDate = electionCandidateMappings.get(0).getElection().getEndDate();
         LocalDate now = LocalDate.now(ZoneId.of("Asia/Kolkata"));
-        if((now.isBefore(endDate) && now.isAfter(startDate)) || now.isEqual(endDate) || now.isEqual(startDate)) throw new ResultsNotAllowedException("Voting is in progress, can't fetch Election Results");
+        if((now.isBefore(endDate) && now.isAfter(startDate)) || now.isEqual(endDate) || now.isEqual(startDate)) throw new ResultsException("Voting is in progress, can't fetch Election Results");
 
         Set<CandidateResultResponse> candidateResultResponseSet = new HashSet<>();
         for(ElectionCandidateMapping electionCandidateMapping:electionCandidateMappings){
@@ -131,13 +129,13 @@ public class ElectionService {
                 .candidateResultResponseSet(candidateResultResponseSet)
                 .build();
     }
-    public VoteResponse addVote(Integer electionId, Integer candidateId, String username) throws NotFoundException, VotingNotAllowedException {
+    public VoteResponse addVote(Integer electionId, Integer candidateId, String username) throws NotFoundException, VotingException {
         ElectionCandidateMapping electionCandidateMapping = electionCandidateMappingService.getByCandidateAndElection(candidateId, electionId);
         LocalDate startDate = electionCandidateMapping.getElection().getStartDate();
         LocalDate endDate = electionCandidateMapping.getElection().getEndDate();
         LocalDate now = LocalDate.now(ZoneId.of("Asia/Kolkata"));
-        if(now.isBefore(startDate)) throw new VotingNotAllowedException("Voting is yet to start");
-        else if(now.isAfter(endDate)) throw new VotingNotAllowedException("Voting has ended");
+        if(now.isBefore(startDate)) throw new VotingException("Voting is yet to start");
+        else if(now.isAfter(endDate)) throw new VotingException("Voting has ended");
         VoteElectionCandidateMapping voteElectionCandidateMapping = new VoteElectionCandidateMapping();
         voteElectionCandidateMapping.setElection(electionCandidateMapping.getElection());
         voteElectionCandidateMapping.setElectionCandidateMapping(electionCandidateMapping);
